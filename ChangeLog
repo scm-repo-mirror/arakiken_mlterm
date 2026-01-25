@@ -1,3 +1,15 @@
+2026-01-25  Araki Ken  <arakiken@users.sf.net>
+
+	* tool/mlimgloader/Makefile.in:
+	  Add LIBS2_quartz_gdk-pixbuf and LIBS2_quartz_libpng.
+
+	* configure.in: Add X_CFLAGS to X_CFLAGS_AUX before X_CFLAGS="" for
+	  mlimagloader to be build with xlib in quartz.
+	  (mlimgloader is not build in quartz, but if multiple values including
+	   "quartz" is specified to --with-gui option, mlimgloader is build
+	   by gui_for_tool="xlib".)
+	  (https://github.com/arakiken/mlterm/issues/157)
+
 2025-12-31  Araki Ken  <arakiken@users.sf.net>
 
 	* xlib/ui_connect_dialog.c: Fix how elapsed time is calculated with
