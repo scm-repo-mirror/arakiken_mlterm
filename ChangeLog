@@ -1,3 +1,12 @@
+2026-02-08  Araki Ken  <arakiken@users.sf.net>
+
+	* vterm.c:
+	  - Check if a member of VTermScreenCallbacks is NULL.
+	  - Fix type cast error in vterm_state_get_cursorpos().
+	  - Add vterm_color_is_equal() and vterm_state_set_selection_callbacks().
+
+	* bl_str.c: bl_str_unescape() supports 0XX (octal digits).
+
 2026-01-25  Araki Ken  <arakiken@users.sf.net>
 
 	* tool/mlimgloader/Makefile.in:

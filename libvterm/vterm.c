@@ -22,6 +22,10 @@
 #define SIXEL_1BPP
 #include "../common/c_sixel.c"
 
+/*
+ * VTERM_COLOR_IS_INDEXED is introduced in this commit.
+ * https://github.com/neovim/libvterm/commit/b62a527b953bca224b9dcd250643a7f5660ef82e#diff-d5cd0b390462baabc29da64421918ff2a8290a315526512b37d0fe973515bed6R97
+ */
 #ifdef VTERM_COLOR_IS_INDEXED
 #define VTERM_EXPOSE_COLOR_INDEX
 #endif
@@ -185,7 +189,9 @@ static void update_screen(VTerm *vterm) {
       bl_debug_printf("MODIFIED %d-%d at %d\n", r.start_col, r.end_col, r.end_row);
 #endif
 
-      (*vterm->vterm_screen_cb->damage)(r, vterm->vterm_screen_cbdata);
+      if (vterm->vterm_screen_cb && vterm->vterm_screen_cb->damage) {
+        (*vterm->vterm_screen_cb->damage)(r, vterm->vterm_screen_cbdata);
+      }
 
       vt_line_set_updated(line);
     }
@@ -459,7 +465,10 @@ error_closing_fp:
 static void xterm_bel(void *p) {
   VTerm *vterm = p;
 
-  (*vterm->vterm_screen_cb->bell)(vterm->vterm_screen_cbdata);
+  /* emacs-libvterm set NULL to bell. */
+  if (vterm->vterm_screen_cb && vterm->vterm_screen_cb->bell) {
+    (*vterm->vterm_screen_cb->bell)(vterm->vterm_screen_cbdata);
+  }
 }
 
 static void line_scrolled_out(void *p) {
@@ -479,7 +488,9 @@ static void line_scrolled_out(void *p) {
       vterm_screen_get_cell((VTermScreen*)vterm, pos, cells + pos.col);
     }
 
-    (*vterm->vterm_screen_cb->sb_pushline)(cols, cells, vterm->vterm_screen_cbdata);
+    if (vterm->vterm_screen_cb && vterm->vterm_screen_cb->sb_pushline) {
+      (*vterm->vterm_screen_cb->sb_pushline)(cols, cells, vterm->vterm_screen_cbdata);
+    }
   }
 }
 
@@ -598,7 +609,7 @@ size_t vterm_input_write(VTerm *vterm, const char *bytes, size_t len) {
 
   vt_term_write_loopback(vterm->term, bytes, len);
 
-  if (vterm->vterm_screen_cb) {
+  if (vterm->vterm_screen_cb && vterm->vterm_screen_cb->movecursor) {
     (*vterm->vterm_screen_cb->movecursor)(get_cursor_pos(vterm->term), oldpos,
                                           vt_term_is_visible_cursor(vterm->term),
                                           vterm->vterm_screen_cbdata);
@@ -799,7 +810,7 @@ void vterm_state_reset(VTermState *state, int hard) {
 }
 
 void vterm_state_get_cursorpos(const VTermState *state, VTermPos *cursorpos) {
-  *cursorpos = get_cursor_pos((vt_term_t*)state);
+  *cursorpos = get_cursor_pos(((VTerm*)state)->term);
 }
 
 void vterm_state_get_default_colors(const VTermState *state, VTermColor *default_fg,
@@ -847,6 +858,25 @@ void vterm_state_set_palette_color(VTermState *state, int index, const VTermColo
 #endif
   vt_customize_color_file(vt_get_color_name(index), rgb, 0);
 }
+
+#ifdef VTERM_EXPOSE_COLOR_INDEX
+int vterm_color_is_equal(const VTermColor *a, const VTermColor *b) {
+  if (a->type == b->type) {
+    if (VTERM_COLOR_IS_RGB(a)) {
+      return (a->rgb.red == b->rgb.red && a->rgb.green == b->rgb.green &&
+              a->rgb.blue == b->rgb.blue);
+    } else if (VTERM_COLOR_IS_INDEXED(a)) {
+      return (a->indexed.idx == b->indexed.idx);
+    }
+  }
+
+  return 0;
+}
+#endif
+
+void vterm_state_set_selection_callbacks(VTermState *state,
+                                         const VTermSelectionCallbacks *callbacks, void *user,
+                                         char *buffer, size_t buflen) {}
 
 void vterm_state_set_bold_highbright(VTermState *state, int bold_is_highbright) {}
 
