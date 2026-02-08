@@ -1,5 +1,20 @@
 2026-02-08  Araki Ken  <arakiken@users.sf.net>
 
+	* mlterm.1, README.ja, PROTOCOL: Update.
+
+	* ui_main_config.c: Add --crsz / cursor_size option.
+
+	* ui_screen.c: Add "cursor_size" to ui_screen_set_config().
+
+	* test.c: Add TEST_ui_display().
+
+	* fb/ui_display.c, ui_display.h:
+	  - Add make_cursor_shape() to generate cursor shape information
+	    according to its size dynamically.
+	  - Add ui_display_set_cursor_size().
+
+	* android/jni/ui_display.c: Remove ui_display_rotate().
+
 	* vterm.c: Enclose vterm_state_set_selection_callbacks() by
 	  VERSION_CHECK_VERSION2(0, 2).
 

@@ -7706,6 +7706,16 @@ int ui_screen_set_config(ui_screen_t *screen, const char *dev, /* can be NULL */
     ui_display_rotate(strcmp(value, "right") == 0 ? 1 : (strcmp(value, "left") == 0 ? -1 : 0));
   }
 #endif
+#ifdef USE_FRAMEBUFFER
+  else if (strcmp(key, "cursor_size") == 0) {
+    u_int width;
+    u_int height;
+
+    if (sscanf(value, "%d,%d", &width, &height) == 2) {
+      ui_display_set_cursor_size(width, height);
+    }
+  }
+#endif
 #ifdef USE_CONSOLE
   else if (strcmp(key, "console_encoding") == 0) {
     vt_char_encoding_t encoding;
