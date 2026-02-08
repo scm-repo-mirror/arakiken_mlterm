@@ -784,11 +784,10 @@ void vterm_state_set_callbacks(VTermState *state, const VTermStateCallbacks *cal
 
 void *vterm_state_get_cbdata(VTermState *state) { return NULL; }
 
-#if defined(VTERM_VERSION_MAJOR) && defined(VTERM_VERSION_MINOR) && \
-    (VTERM_VERSION_MAJOR * 1000 + VTERM_VERSION_MINOR >= 2)
+#if VTERM_CHECK_VERSION2(0, 2)
 /*
- * VTermStateFallbacks is introduced at revision 759.
- * https://bazaar.launchpad.net/~libvterm/libvterm/trunk/revision/759
+ * VTermStateFallbacks is introduced at this commit.
+ * https://github.com/neovim/libvterm/commit/337b954044e07aa86dd1e96b9c04b68193a8ef88
  */
 void vterm_state_set_unrecognised_fallbacks(VTermState *state,
                                             const VTermStateFallbacks *fallbacks, void *user) {}
@@ -874,9 +873,11 @@ int vterm_color_is_equal(const VTermColor *a, const VTermColor *b) {
 }
 #endif
 
+#if VTERM_CHECK_VERSION2(0, 2)
 void vterm_state_set_selection_callbacks(VTermState *state,
                                          const VTermSelectionCallbacks *callbacks, void *user,
                                          char *buffer, size_t buflen) {}
+#endif
 
 void vterm_state_set_bold_highbright(VTermState *state, int bold_is_highbright) {}
 
