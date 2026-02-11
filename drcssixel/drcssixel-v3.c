@@ -131,6 +131,23 @@ unsigned int* drcs_sixel_v3_from_data(const char *sixel, /* DCS P1;P2;P3;q...ST 
   *num_cols = (width + col_width - 1) / col_width;
   *num_rows = (height + line_height - 1) / line_height;
 
+  unsigned int code = 0x100000 + (((*intermed) - 0x20) * 63 + ((*ft) - 0x40)) * 94;
+  if (code + (*num_rows) * (*num_cols) > 0x10ffff) {
+    /*
+     * DRCSMMv3: 0x10000 - 0x10ffff
+     *
+     * Set drcs_intermed and drcs_charset not to exceed 0x10ffff.
+     * drcs_intermed = 0x2b (+)                   \
+     * drcs_charset = 0x44 (D)   |--> 0x10ffff
+     * char = 0x32 (2)          /
+     *
+     * https://github.com/kmiya-culti/RLogin/issues/152#issuecomment-3588412510
+     */
+    *intermed = 0x20;
+    *ft = 0x40;
+    code = 0x100000;
+  }
+
   sprintf(seq, "\x1b[?8800h\x1b[?8801h\x1bP1;0;0;%d;1;3;%d;0{ %c%c",
           col_width, line_height, *intermed, *ft);
   write_to_stdout(seq, strlen(seq));
@@ -143,7 +160,6 @@ unsigned int* drcs_sixel_v3_from_data(const char *sixel, /* DCS P1;P2;P3;q...ST 
     unsigned int *buf_p = buf;
     int col;
     int row;
-    unsigned int code = 0x100000 + (((*intermed) - 0x20) * 63 + ((*ft) - 0x40)) * 94;
     int count = 0;
 
     for(row = 0; row < *num_rows; row++) {
@@ -151,13 +167,21 @@ unsigned int* drcs_sixel_v3_from_data(const char *sixel, /* DCS P1;P2;P3;q...ST 
         *(buf_p++) = code++;
         if (++count == 94) {
           count = 0;
-          if (++(*intermed) == 0x30) {
-            (*intermed) = 0x20;
-            if (++(*ft) == 0x7f) {
-              (*ft) = 0x40;
+          if (++(*ft) == 0x7f) {
+            (*ft) = 0x40;
+            if (++(*intermed) == 0x30) {
+              (*intermed) = 0x20;
+              code = 0x100000;
             }
           }
         }
+      }
+    }
+
+    if (++(*ft) == 0x7f) {
+      (*ft) = 0x40;
+      if (++(*intermed) == 0x30) {
+        (*intermed) = 0x20;
       }
     }
 

@@ -1,3 +1,7 @@
+2026-02-12  Araki Ken  <arakiken@users.sf.net>
+
+	* drcssixel-v3.c: Fix carry over not to exceed 0x10ffff.
+
 2026-02-08  Araki Ken  <arakiken@users.sf.net>
 
 	* mlterm.1, README.ja, PROTOCOL: Update.

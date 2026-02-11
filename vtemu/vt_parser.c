@@ -2214,7 +2214,6 @@ static void define_drcs_picture(vt_parser_t *vt_parser, char *path, ef_charset_t
       }
 
       if (idx >= 0x100) {
-        printf("%d %d %d %d\n", cols, rows, cols_small, rows_small);
         for (pages = (cols_small * rows_small + 93) / 94; pages > 0; pages--) {
           font = vt_drcs_get_font(vt_parser->drcs, cs, 1);
           if (font) {
