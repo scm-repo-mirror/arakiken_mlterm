@@ -1,3 +1,7 @@
+2026-02-14  Araki Ken  <arakiken@users.sf.net>
+
+	* libvterm/vterm.c: Support DRCSMMv3.
+
 2026-02-12  Araki Ken  <arakiken@users.sf.net>
 
 	* drcssixel-v3.c: Fix carry over not to exceed 0x10ffff.
