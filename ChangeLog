@@ -1,3 +1,7 @@
+2026-02-15  Araki Ken  <arakiken@users.sf.net>
+
+	* ui_display_linux.c: Fix converting EV_ABS to EV_REL.
+
 2026-02-14  Araki Ken  <arakiken@users.sf.net>
 
 	* libvterm/vterm.c: Support DRCSMMv3.
